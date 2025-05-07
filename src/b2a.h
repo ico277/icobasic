@@ -29,6 +29,28 @@ static inline const char* b2a_token_tostr(b2a_token token) {
     }
 }
 
+enum class b2a_instruction_type {
+    VAR_CREATE,
+    VAR_ASSIGN,
+    FUNC_CALL,
+};
+
+
+struct b2a_instr_var_create {
+    std::string name;
+    std::string scope;
+};
+
+struct b2a_instr_var_assign {
+    std::string name;
+    std::string value;
+};
+
+struct b2a_instruction {
+    b2a_instruction_type type;
+    void* data;
+};
+
 
 std::vector<std::pair<b2a_token, std::string>> b2a_lexer(std::ifstream* input);
 
