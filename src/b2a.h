@@ -43,6 +43,7 @@ struct b2a_instr_var_create {
 
 struct b2a_instr_var_assign {
     std::string name;
+    std::string scope;
     std::string value;
 };
 
