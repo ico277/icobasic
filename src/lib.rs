@@ -1,35 +1,34 @@
-pub mod token {
-    #[derive(Debug)]
-    pub enum Token {
-        Identifier(String),
-        Keyword(String),
-        Number(String),
-        String(String),
-        Operator(String),
-        Seperator(String),
-        LineEnd(String),
-        ExpressionEnd(String),
-        Unknown(String),
-    }
-}
-
 pub mod lexar {
+    pub mod token {
+        #[derive(Debug)]
+        pub enum Token {
+            Identifier(String),
+            Keyword(String),
+            Number(String),
+            String(String),
+            Operator(String),
+            Seperator(String),
+            LineEnd(String),
+            ExpressionEnd(String),
+            Unknown(String),
+        }
+    }
 
     use std::io::BufRead;
     use std::iter::Peekable;
 
-    use crate::token::Token;
+    use token::Token;
 
     fn next_token<I>(chars: &mut Peekable<I>) -> Token
     where
         I: Iterator<Item = char> + Clone,
-{
+    {
         // skip whitespace
         while let Some(c) = chars.peek() {
             if c.is_whitespace() {
                 chars.next();
             } else {
-                break
+                break;
             }
         }
 
@@ -40,7 +39,7 @@ pub mod lexar {
             if c.is_digit(10) {
                 object.push(chars.next().unwrap());
             } else {
-                break
+                break;
             }
         }
         if !object.is_empty() {
@@ -52,7 +51,7 @@ pub mod lexar {
             if c.is_alphanumeric() || *c == '$' {
                 object.push(chars.next().unwrap());
             } else {
-                break
+                break;
             }
         }
         if !object.is_empty() {
@@ -61,13 +60,9 @@ pub mod lexar {
 
         // Operators
         match chars.peek() {
-            Some('=') |
-            Some('+') |
-            Some('-') |
-            Some('/') |
-            Some('*') => {
-                object.push(chars.next().unwrap());  
-            },
+            Some('=') | Some('+') | Some('-') | Some('/') | Some('*') => {
+                object.push(chars.next().unwrap());
+            }
             _ => (),
         }
         if !object.is_empty() {
@@ -80,27 +75,31 @@ pub mod lexar {
             loop {
                 match chars.next() {
                     Some('"') => break,
-                    Some('\\') =>
+                    Some('\\') => {
                         match chars.next() {
                             Some('n') => object.push('\n'),
                             Some('r') => object.push('\r'),
                             Some('t') => object.push('\t'),
                             Some('\\') => object.push('\\'),
                             Some('"') => object.push('"'),
-                            Some('x') =>
+                            Some('x') => {
                                 match (chars.next(), chars.next()) {
                                     (Some(s1), Some(s2)) => {
                                         let num = format!("{}{}", s1, s2);
-                                        object.push(u8::from_str_radix(num.as_str(), 16).unwrap() as char);
-                                    },
+                                        object.push(
+                                            u8::from_str_radix(num.as_str(), 16).unwrap() as char,
+                                        );
+                                    }
                                     _ => (),//{ return Token::Unknown(String::from("Unexpected end of string")) },
-                                },
+                                }
+                            }
                             Some(s) => {
                                 eprintln!("Warning: Invalid escape code '{}'!", s);
                                 object.push(s);
-                            },
+                            }
                             None => continue,
-                        },
+                        }
+                    }
                     Some(s) => object.push(s),
                     None => break,
                 }
@@ -124,8 +123,8 @@ pub mod lexar {
         match chars.peek() {
             Some('\n') => {
                 return Token::LineEnd(String::from(chars.next().unwrap()));
-            },
-            None => { return Token::LineEnd(String::new()) },
+            }
+            None => return Token::LineEnd(String::new()),
             _ => (),
         }
 
@@ -133,7 +132,7 @@ pub mod lexar {
         return Token::Unknown(String::from(chars.next().unwrap_or('\0')));
     }
 
-    pub fn lexar<F: BufRead>(input: F) -> Vec<Token>{
+    pub fn lexar<F: BufRead>(input: F) -> Vec<Token> {
         let mut tokens = vec![];
         let lines = input.lines().map(|l| l.unwrap());
         for line in lines {
@@ -143,11 +142,9 @@ pub mod lexar {
                 match last_token {
                     Token::LineEnd(s) => {
                         tokens.push(Token::ExpressionEnd(s));
-                        break
-                    },
-                    t => {
-                        tokens.push(t)
+                        break;
                     }
+                    t => tokens.push(t),
                 }
 
                 last_token = next_token(&mut iter);
@@ -157,3 +154,5 @@ pub mod lexar {
         tokens
     }
 }
+
+pub mod parser {}
