@@ -15,7 +15,7 @@ pub mod lexar {
     }
 
     use std::io::BufRead;
-    use std::iter::Peekable;
+    use std::iter::Peekable;	
 
     use token::Token;
 
@@ -129,7 +129,7 @@ pub mod lexar {
         }
 
         // unknown token from pos
-        return Token::Unknown(String::from(chars.next().unwrap_or('\0')));
+        Token::Unknown(String::from(chars.next().unwrap_or('\0')))
     }
 
     pub fn lexar<F: BufRead>(input: F) -> Vec<Token> {
@@ -155,4 +155,39 @@ pub mod lexar {
     }
 }
 
-pub mod parser {}
+pub mod parser {
+    use crate::lexar::token::Token;
+
+    pub enum VariableType {
+        Number(i32),
+        String(String),
+    }
+    pub struct Variable {
+        pub identifier: String,
+        pub value: Option<VariableType>,
+    }
+
+    pub enum FunctionArgument {
+        Variable(String),
+        String(String),
+        Number(i32),
+    }
+    pub struct FunctionCall {
+        pub func_name: String,
+        pub arguments: Vec<FunctionArgument>,
+    }
+
+    pub enum Instruction {
+        VariableCreate(Variable),
+        VariableAssign(Variable),
+        FunctionCall(FunctionCall),        
+    }
+
+    pub fn parser(tokens: Vec<Token>) -> Vec<Instruction> {
+        let mut instructions = vec![];
+
+        let mut full_inst;
+
+        instructions    
+    }
+}

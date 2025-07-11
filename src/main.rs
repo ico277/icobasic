@@ -2,6 +2,7 @@ use std::{fs::File, io::BufReader};
 use std::env::args;
 
 use icobasic::lexar::lexar;
+use icobasic::parser;
 
 fn main() {
     let mut args = args().into_iter();
@@ -10,4 +11,5 @@ fn main() {
     for token in tokens {
         println!("{:?}", token);
     }
+    
 }
